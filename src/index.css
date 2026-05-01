@@ -1,0 +1,113 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  }
+}
+
+@layer components {
+  .glass {
+    @apply bg-card border border-[#3A3834] rounded-2xl shadow-xl transition-all duration-300;
+  }
+
+  .glass-hover {
+    @apply hover:bg-card-hover hover:border-[#4A4844];
+  }
+
+  .btn-primary {
+    @apply px-4 py-2 bg-foreground text-background rounded-full font-semibold hover:bg-white shadow-sm transition-all active:scale-95 disabled:opacity-50 disabled:pointer-events-none;
+  }
+
+  .btn-secondary {
+    @apply px-4 py-2 bg-secondary text-foreground rounded-lg hover:bg-[#45423E] border border-[#3A3834] transition-all active:scale-95;
+  }
+
+  .input-field {
+    @apply w-full bg-background border border-[#3A3834] rounded-2xl px-5 py-4 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all text-foreground placeholder:text-[#88857F] text-base shadow-inner;
+  }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background-color: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-slate-800 rounded-full hover:bg-slate-700;
+}
+
+/* Markdown Styles */
+.prose {
+  @apply text-foreground max-w-none text-[15px] leading-relaxed;
+}
+
+.prose h1,
+.prose h2,
+.prose h3 {
+  @apply text-foreground font-bold mb-5 mt-8;
+  font-family: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+}
+
+.prose h1 {
+  @apply text-3xl font-semibold;
+}
+
+.prose h2 {
+  @apply text-2xl border-b border-[#3A3834] pb-2 font-semibold;
+}
+
+.prose h3 {
+  @apply text-xl font-medium;
+}
+
+.prose p {
+  @apply mb-5;
+}
+
+.prose ul {
+  @apply list-disc list-inside mb-5 space-y-1.5;
+}
+
+.prose ol {
+  @apply list-decimal list-inside mb-5 space-y-1.5;
+}
+
+.prose code {
+  @apply bg-[#3A3834] px-1.5 py-0.5 rounded text-[#D4A373] text-[13px] font-mono;
+}
+
+.prose pre {
+  @apply bg-[#151413] p-5 rounded-xl border border-[#3A3834] overflow-x-auto my-6 text-[13px] shadow-inner;
+}
+
+.prose pre code {
+  @apply bg-transparent px-0 py-0 text-[#EBEBE6];
+}
+
+.prose table {
+  @apply w-full text-left border-collapse my-6 overflow-hidden rounded-xl border border-[#3A3834];
+}
+
+.prose th {
+  @apply bg-[#2B2A27] px-4 py-3 font-semibold text-foreground border-b border-[#3A3834];
+}
+
+.prose td {
+  @apply px-4 py-3 border-b border-[#3A3834]/50 text-foreground/90;
+}
+
+.prose tr:last-child td {
+  @apply border-b-0;
+}
+
+.prose tr:hover td {
+  @apply bg-[#2B2A27]/50 transition-colors;
+}
