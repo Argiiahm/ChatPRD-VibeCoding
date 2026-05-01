@@ -2,8 +2,6 @@
 
 ChatPRD adalah aplikasi web modern yang membantu Product Manager dan Developer membuat **Product Requirement Document (PRD)** secara instan menggunakan kekuatan AI (Google Gemini). Aplikasi ini tidak hanya menghasilkan teks PRD yang terstruktur, tetapi juga membuat diagram flowchart otomatis menggunakan Mermaid.js.
 
-![ChatPRD Preview](https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80&w=1000)
-
 ## ✨ Fitur Utama
 
 - **🤖 AI PRD Generation**: Hasilkan PRD lengkap (Objective, Features, User Flow, Database Schema) hanya dari satu baris ide produk.
