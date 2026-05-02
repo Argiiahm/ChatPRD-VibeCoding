@@ -69,10 +69,17 @@ export class GeminiService {
       : `Product Idea: ${prompt}\n\nGenerate a complete PRD and flow diagram for this specific product idea.`;
 
     let attempt = 0;
-    const currentModel = this.getModel();
 
     while (attempt < retries) {
       try {
+        // 1. Kasih delay kecil di awal untuk cegah burst limit (opsional tapi disarankan)
+        if (attempt === 0) {
+          await new Promise(r => setTimeout(r, 1000));
+        }
+
+        // 2. Jangan reuse model instance lama (mencegah throttle/cache)
+        const currentModel = this.getModel();
+        
         const result = await currentModel.generateContent(userMessage);
         const response = await result.response;
         const text = response.text();
@@ -80,16 +87,24 @@ export class GeminiService {
         return this.parseResponse(text);
       } catch (error: any) {
         attempt++;
+        const isRateLimit = error?.message?.includes("429") || error?.message?.includes("quota");
+        
         console.error(`Gemini API Error (Attempt ${attempt}/${retries}):`, error);
 
         if (attempt >= retries) {
           throw error;
         }
 
-        // Exponential backoff: 1s, 2s, 4s
-        const delay = Math.pow(2, attempt - 1) * 1000;
-        console.log(`Waiting ${delay}ms before retrying...`);
-        await new Promise(resolve => setTimeout(resolve, delay));
+        // 3. Handle 429 dengan delay lebih lama (15 detik)
+        if (isRateLimit) {
+          console.log("Rate limit hit (429). Waiting 15s before retry...");
+          await new Promise(r => setTimeout(r, 15000));
+        } else {
+          // 4. Exponential backoff untuk error lain: 2s, 4s, 8s
+          const delay = Math.pow(2, attempt) * 1000;
+          console.log(`Waiting ${delay}ms before retrying...`);
+          await new Promise(resolve => setTimeout(resolve, delay));
+        }
       }
     }
   }

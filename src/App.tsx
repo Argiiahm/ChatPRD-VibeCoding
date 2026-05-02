@@ -110,7 +110,7 @@ export default function App() {
   };
 
   const handleGenerate = async () => {
-    if (!prompt || !apiKey) return;
+    if (!prompt || !apiKey || isLoading) return;
 
     setIsLoading(true);
     setErrorMsg(null);
