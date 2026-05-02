@@ -153,8 +153,14 @@ export default function App() {
       setPrompt('');
       refreshProjects();
     } catch (error: any) {
-      const errorMessage = error?.message || 'Please check your API key and connection.';
-      setErrorMsg(`Generation failed: ${errorMessage}`);
+      const errorMessage = error?.message || '';
+      if (errorMessage.includes("429") || errorMessage.includes("quota")) {
+        setErrorMsg("Batas penggunaan API (Quota) tercapai. Tunggu sebentar (sekitar 15-30 detik) lalu coba lagi. Jika masih gagal, pastikan API Key Anda benar.");
+      } else if (errorMessage.includes("503")) {
+        setErrorMsg("Server AI sedang sibuk. Silakan tunggu beberapa detik dan coba lagi.");
+      } else {
+        setErrorMsg(`Gagal membuat PRD: ${errorMessage || 'Cek koneksi dan API key Anda.'}`);
+      }
     } finally {
       setIsLoading(false);
     }

@@ -63,7 +63,7 @@ export class GeminiService {
     });
   }
 
-  async generatePRD(prompt: string, template?: string, retries = 3) {
+  async generatePRD(prompt: string, template?: string, retries = 5) {
     const userMessage = template
       ? `Product Category: ${template}\n\nProduct Idea: ${prompt}\n\nGenerate a complete PRD and flow diagram for this specific product idea.`
       : `Product Idea: ${prompt}\n\nGenerate a complete PRD and flow diagram for this specific product idea.`;
@@ -73,8 +73,9 @@ export class GeminiService {
 
     // Daftar model cadangan jika server model utama sedang sibuk (503)
     const fallbackModels = [
+      "gemini-2.0-flash",
       "gemini-2.0-flash-lite",
-      "gemini-2.0-flash"
+      "gemini-1.5-flash" // Masukkan kembali sebagai pilihan terakhir jika 2.0 gagal total
     ];
 
     while (attempt < retries) {
