@@ -69,14 +69,7 @@ export class GeminiService {
       : `Product Idea: ${prompt}\n\nGenerate a complete PRD and flow diagram for this specific product idea.`;
 
     let attempt = 0;
-    let currentModel = this.getModel();
-
-    // Daftar model cadangan jika server model utama sedang sibuk (503)
-    const fallbackModels = [
-      "gemini-2.0-flash",
-      "gemini-2.0-flash-lite",
-      "gemini-1.5-flash" // Masukkan kembali sebagai pilihan terakhir jika 2.0 gagal total
-    ];
+    const currentModel = this.getModel();
 
     while (attempt < retries) {
       try {
@@ -90,17 +83,6 @@ export class GeminiService {
         console.error(`Gemini API Error (Attempt ${attempt}/${retries}):`, error);
 
         if (attempt >= retries) {
-          throw error;
-        }
-
-        // Strategi Fallback: Ganti model jika error 503 atau 404 (Model Not Found)
-        const isOverloadedOrNotFound = error?.message?.includes("503") || error?.message?.includes("429") || error?.message?.includes("404");
-
-        if (isOverloadedOrNotFound && attempt <= fallbackModels.length) {
-          const nextModelName = fallbackModels[attempt - 1];
-          console.log(`[Auto-Fallback] Model failed. Switching to model: ${nextModelName}`);
-          currentModel = this.getModel(nextModelName);
-        } else if (!isOverloadedOrNotFound) {
           throw error;
         }
 
