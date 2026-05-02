@@ -14,13 +14,15 @@ import {
   RotateCcw,
   Menu,
   X,
-  BookOpen
+  BookOpen,
+  BarChart3
 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { motion, AnimatePresence } from 'framer-motion';
 import Mermaid from './components/Mermaid';
 import Documentation from './components/Documentation';
+import UsageStats from './components/UsageStats';
 import { GeminiService } from './services/gemini';
 import { getProjects, saveProject, deleteProject, createProject, addRevision, canRevise, type PRDProject } from './services/storage';
 import { clsx, type ClassValue } from 'clsx';
@@ -65,6 +67,7 @@ export default function App() {
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isDocsOpen, setIsDocsOpen] = useState(false);
+  const [isUsageOpen, setIsUsageOpen] = useState(false);
 
   // Project & Version state
   const [projects, setProjects] = useState<PRDProject[]>(getProjects());
@@ -291,6 +294,13 @@ export default function App() {
 
         {/* Sidebar Footer */}
         <div className="p-3 border-t border-[#3A3834]/50">
+          <button
+            onClick={() => setIsUsageOpen(true)}
+            className="w-full flex items-center gap-3 px-3 py-2 rounded-md hover:bg-[#2B2A27] text-[#88857F] hover:text-foreground transition-colors text-left mb-1"
+          >
+            <BarChart3 className="w-4 h-4" />
+            <span className="text-[13px] font-medium">Usage</span>
+          </button>
           <button
             onClick={() => setIsDocsOpen(true)}
             className="w-full flex items-center gap-3 px-3 py-2 rounded-md hover:bg-[#2B2A27] text-[#88857F] hover:text-foreground transition-colors text-left mb-1"
@@ -604,6 +614,11 @@ export default function App() {
       {/* Documentation Modal */}
       <AnimatePresence>
         <Documentation isOpen={isDocsOpen} onClose={() => setIsDocsOpen(false)} />
+      </AnimatePresence>
+
+      {/* Usage Stats Modal */}
+      <AnimatePresence>
+        <UsageStats isOpen={isUsageOpen} onClose={() => setIsUsageOpen(false)} />
       </AnimatePresence>
     </div>
   );

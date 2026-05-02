@@ -1,4 +1,5 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { UsageTracker } from "./usage";
 
 const SYSTEM_INSTRUCTION = `You are an expert Product Manager and Solutions Architect AI.
 Your ONLY job is to generate a comprehensive PRD (Product Requirement Document) and a Mermaid flowchart that are 100% relevant to the user's specific idea.
@@ -96,11 +97,13 @@ export class GeminiService {
         const response = await result.response;
         const text = response.text();
 
+        UsageTracker.logRequest('success', this.modelName);
         return this.parseResponse(text);
       } catch (error: any) {
         attempt++;
         const isRateLimit = error?.message?.includes("429") || error?.message?.includes("quota");
         
+        UsageTracker.logRequest('error', this.modelName, error?.message);
         console.error(`Gemini API Error (Attempt ${attempt}/${retries}):`, error);
 
         if (attempt >= retries) {
