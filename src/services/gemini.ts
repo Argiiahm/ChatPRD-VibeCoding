@@ -7,6 +7,7 @@ RULES:
 1. EVERYTHING you write must directly relate to the user's product idea. Do NOT generate generic content.
 2. Use the user's own keywords and terminology throughout.
 3. The PRD title must reflect the user's product name/idea.
+4. IMPORTANT: Keep answers concise but complete. Avoid unnecessary verbosity.
 
 OUTPUT FORMAT (follow strictly):
 
@@ -50,6 +51,7 @@ MERMAID STRICT RULES (v11):
 export class GeminiService {
   private genAI: GoogleGenerativeAI;
   private modelName: string;
+  private static lastRequestTime = 0;
 
   constructor(apiKey: string, modelName: string = "gemini-2.0-flash") {
     this.genAI = new GoogleGenerativeAI(apiKey.trim());
@@ -68,16 +70,26 @@ export class GeminiService {
       ? `Product Category: ${template}\n\nProduct Idea: ${prompt}\n\nGenerate a complete PRD and flow diagram for this specific product idea.`
       : `Product Idea: ${prompt}\n\nGenerate a complete PRD and flow diagram for this specific product idea.`;
 
+    // 1. Global cooldown (anti-spam) - minimal 2 detik antar request
+    const now = Date.now();
+    const diff = now - GeminiService.lastRequestTime;
+    if (diff < 2000) {
+      const wait = 2000 - diff;
+      console.log(`Global cooldown active. Waiting ${wait}ms...`);
+      await new Promise(r => setTimeout(r, wait));
+    }
+    GeminiService.lastRequestTime = Date.now();
+
     let attempt = 0;
 
     while (attempt < retries) {
       try {
-        // 1. Kasih delay kecil di awal untuk cegah burst limit (opsional tapi disarankan)
+        // 2. Burst limit protection (extra check)
         if (attempt === 0) {
           await new Promise(r => setTimeout(r, 1000));
         }
 
-        // 2. Jangan reuse model instance lama (mencegah throttle/cache)
+        // 3. Jangan reuse model instance lama
         const currentModel = this.getModel();
         
         const result = await currentModel.generateContent(userMessage);
@@ -95,10 +107,12 @@ export class GeminiService {
           throw error;
         }
 
-        // 3. Handle 429 dengan delay lebih lama (15 detik)
+        // 4. Handle 429 (Stop brutal retry)
         if (isRateLimit) {
-          console.log("Rate limit hit (429). Waiting 15s before retry...");
-          await new Promise(r => setTimeout(r, 15000));
+          console.log("Rate limit hit (429). Waiting 20s and stopping...");
+          await new Promise(r => setTimeout(r, 20000));
+          // Jangan loop terus jika kena 429, informasikan ke user
+          throw new Error("Batas penggunaan (Rate Limit) tercapai. Tunggu 60 detik sebelum mencoba lagi.");
         } else {
           // 4. Exponential backoff untuk error lain: 2s, 4s, 8s
           const delay = Math.pow(2, attempt) * 1000;
