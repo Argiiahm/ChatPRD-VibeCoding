@@ -51,7 +51,7 @@ export class GeminiService {
   private genAI: GoogleGenerativeAI;
   private modelName: string;
 
-  constructor(apiKey: string, modelName: string = "gemini-1.5-flash") {
+  constructor(apiKey: string, modelName: string = "gemini-2.0-flash") {
     this.genAI = new GoogleGenerativeAI(apiKey.trim());
     this.modelName = modelName;
   }
@@ -73,8 +73,8 @@ export class GeminiService {
 
     // Daftar model cadangan jika server model utama sedang sibuk (503)
     const fallbackModels = [
-      "gemini-1.5-flash",
-      "gemini-1.5-pro"
+      "gemini-2.0-flash-lite",
+      "gemini-2.0-flash"
     ];
 
     while (attempt < retries) {

@@ -43,8 +43,21 @@ export default function App() {
   const [prompt, setPrompt] = useState('');
   const [apiKey, setApiKey] = useState(localStorage.getItem('gemini_api_key') || '');
   const storedModel = localStorage.getItem('gemini_model_name') || '';
-  const defaultModel = (storedModel && !storedModel.includes('deepseek')) ? storedModel : 'gemini-2.0-flash';
+  
+  // Migration logic: Force upgrade from 1.5 to 2.0 if outdated
+  const isOutdated = storedModel.includes('1.5');
+  const defaultModel = (storedModel && !isOutdated && !storedModel.includes('deepseek')) 
+    ? storedModel 
+    : 'gemini-2.0-flash';
+
   const [modelName, setModelName] = useState(defaultModel);
+
+  // If we migrated, update localStorage
+  useEffect(() => {
+    if (isOutdated) {
+      localStorage.setItem('gemini_model_name', 'gemini-2.0-flash');
+    }
+  }, [isOutdated]);
   const [isSettingsOpen, setIsSettingsOpen] = useState(!apiKey);
   const [isLoading, setIsLoading] = useState(false);
   const [copying, setCopying] = useState(false);
