@@ -89,7 +89,7 @@ const Documentation: React.FC<DocumentationProps> = ({ isOpen, onClose }) => {
               <ul className="space-y-2 list-disc list-inside text-[#88857F] text-[13px]">
                 <li>Klik ikon <Settings className="w-3 h-3 inline" /> <strong>Settings</strong> di pojok kiri bawah.</li>
                 <li>Tempel (Paste) API key Anda di kolom yang tersedia.</li>
-                <li>Pilih model (disarankan <code>gemini-1.5-flash</code> untuk kecepatan).</li>
+                <li>Pilih model (disarankan <code>gemini-2.0-flash</code> untuk kecepatan).</li>
                 <li>Klik <strong>Save</strong>.</li>
               </ul>
             </div>

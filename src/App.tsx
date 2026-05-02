@@ -43,7 +43,7 @@ export default function App() {
   const [prompt, setPrompt] = useState('');
   const [apiKey, setApiKey] = useState(localStorage.getItem('gemini_api_key') || '');
   const storedModel = localStorage.getItem('gemini_model_name') || '';
-  const defaultModel = (storedModel && !storedModel.includes('deepseek')) ? storedModel : 'gemini-1.5-flash';
+  const defaultModel = (storedModel && !storedModel.includes('deepseek')) ? storedModel : 'gemini-2.0-flash';
   const [modelName, setModelName] = useState(defaultModel);
   const [isSettingsOpen, setIsSettingsOpen] = useState(!apiKey);
   const [isLoading, setIsLoading] = useState(false);
