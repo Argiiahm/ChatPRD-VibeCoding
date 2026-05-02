@@ -37,99 +37,7 @@ const TEMPLATES = [
   { id: 'marketplace', name: 'Marketplace', icon: Send },
 ];
 
-const MOCK_RESULT = {
-  prd: `## 🚀 Product Requirement Document (PRD): AI-Powered E-Commerce Recommendation Engine
 
-### 1. Objective
-To build a highly scalable, real-time AI recommendation engine that increases average order value (AOV) by 15% within the first quarter of deployment. The system will leverage collaborative filtering, natural language processing on product descriptions, and real-time user session tracking.
-
-### 2. Problem Statement
-Current product recommendations are static, rule-based, and do not adapt to user behavior in real-time. This leads to poor conversion rates on cross-sell and up-sell opportunities (currently below 2.5%). Users often abandon carts because they cannot find complementary items quickly.
-
-### 3. Solution Overview
-We will implement a hybrid recommendation system integrating:
-- **Real-time Session Context:** Tracks clicks, time spent on page, and cart additions using Redis.
-- **Deep Learning Embeddings:** Uses a vector database (Pinecone/Milvus) to match semantic similarities between products.
-- **Collaborative Filtering:** Batch processing via Apache Spark to analyze historical purchase patterns.
-
-### 4. Features List
-#### Phase 1 (MVP)
-- **"Customers who bought this also bought"** widget (Collaborative Filtering).
-- **"Similar items"** widget (Vector Embeddings).
-- **Basic A/B Testing Infrastructure** to measure recommendation effectiveness.
-
-#### Phase 2
-- **Real-time Personalization:** Adapts to anonymous users within 3 clicks.
-- **Email Integration:** Personalized weekly digests.
-- **Dynamic Pricing:** Slight discounts on recommended bundles to increase conversion.
-
-### 5. User Flow
-1. User lands on a Product Details Page (PDP).
-2. The frontend triggers an asynchronous call to the Recommendation API, passing the \`product_id\` and \`session_id\`.
-3. The API queries the Cache for pre-computed collaborative filtering results.
-4. Concurrently, the API queries the Vector DB for semantically similar items.
-5. A ranking algorithm scores the combined results and returns the top 5 items.
-6. The user clicks a recommended item, sending a telemetry event for model reinforcement.
-7. User adds the item to the cart (Conversion!).
-
-### 6. Technical Suggestions
-- Use **FastAPI (Python)** for the recommendation microservice due to its async nature and ML ecosystem compatibility.
-- Utilize **Kafka** for event streaming (clicks, views) to feed the ML training pipeline.
-- Implement a **Circuit Breaker** pattern so the PDP still loads fast even if the recommendation engine times out.
-- **Latency Budget:** Must return recommendations in < 150ms.
-### 7. Database Schema Recommendation
-For a high-performance recommendation engine, we suggest a polyglot persistence architecture. Below is the relational schema for the core application (PostgreSQL).
-
-#### Table: \`users\`
-| Column | Type | Constraints | Description |
-|--------|------|-------------|-------------|
-| \`id\` | UUID | PRIMARY KEY | Unique user identifier |
-| \`email\` | VARCHAR(255) | UNIQUE, NOT NULL | User contact email |
-| \`segment_id\` | INT | FOREIGN KEY | Maps to user behavior segment |
-| \`created_at\` | TIMESTAMPTZ | DEFAULT NOW() | Account creation time |
-
-#### Table: \`products\`
-| Column | Type | Constraints | Description |
-|--------|------|-------------|-------------|
-| \`id\` | UUID | PRIMARY KEY | Product identifier |
-| \`sku\` | VARCHAR(50) | UNIQUE, NOT NULL | Stock Keeping Unit |
-| \`category_id\` | INT | FOREIGN KEY | Product category |
-| \`embedding_id\` | UUID | NULLABLE | Ref to Vector DB (Pinecone) |
-| \`price\` | DECIMAL(10,2) | NOT NULL | Current price |
-
-#### Table: \`user_interactions\` (Partitioned)
-| Column | Type | Constraints | Description |
-|--------|------|-------------|-------------|
-| \`event_id\` | BIGSERIAL | PRIMARY KEY | Event identifier |
-| \`user_id\` | UUID | INDEXED | Foreign key to users |
-| \`product_id\` | UUID | INDEXED | Foreign key to products |
-| \`action_type\`| ENUM | NOT NULL | 'VIEW', 'CART', 'PURCHASE' |
-| \`timestamp\` | TIMESTAMPTZ | DEFAULT NOW() | Time of interaction |
-
-*Note: Session state will be stored in **Redis** with a 24-hour TTL. Deep learning embeddings (1536-dimensional vectors) will be managed via **Pinecone/Milvus**.*
-`,
-  mermaid: `flowchart TD
-    A[Web Client] --> C[API Gateway]
-    B[Analytics SDK] --> J[Kafka Bus]
-    C --> D[Auth Service]
-    D --> E[FastAPI Backend]
-    E --> F{Cache Hit}
-    F -->|Yes| G[Redis Cache]
-    F -->|No| I[Vector Search]
-    I --> H[Ranking Engine]
-    G --> H
-    H --> E
-    E --> C
-    J --> K[Spark Processing]
-    K --> M[Model Training]
-    M --> I
-    K --> G
-
-    style A fill:#6366f1,stroke:#333,stroke-width:2px,color:#fff
-    style E fill:#a855f7,stroke:#333,stroke-width:2px,color:#fff
-    style J fill:#10b981,stroke:#333,stroke-width:2px,color:#fff
-    style H fill:#f59e0b,stroke:#333,stroke-width:2px,color:#fff`
-};
 
 export default function App() {
   const [prompt, setPrompt] = useState('');
@@ -142,7 +50,6 @@ export default function App() {
   const [copying, setCopying] = useState(false);
   const [activeTemplate, setActiveTemplate] = useState<string | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
-  const [isMockMode, setIsMockMode] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isDocsOpen, setIsDocsOpen] = useState(false);
 
@@ -184,7 +91,6 @@ export default function App() {
     setActiveVersionIndex(0);
     setPrompt('');
     setErrorMsg(null);
-    setIsMockMode(false);
     setActiveTemplate(null);
     localStorage.removeItem('active_project_id');
     localStorage.removeItem('active_version_index');
@@ -195,7 +101,6 @@ export default function App() {
 
     setIsLoading(true);
     setErrorMsg(null);
-    setIsMockMode(false);
 
     // If there's an active project and it can be revised → revision mode
     if (activeProject && canRevise(activeProject)) {
@@ -247,7 +152,6 @@ export default function App() {
     setActiveVersionIndex(project.versions.length - 1);
     setPrompt('');
     setErrorMsg(null);
-    setIsMockMode(false);
     setIsSidebarOpen(false); // Close sidebar on mobile after selection
   };
 
@@ -456,11 +360,6 @@ export default function App() {
                       <span className="text-[12px] sm:text-[13px] font-mono text-foreground/70 truncate">
                         product_requirement_document.md
                       </span>
-                      {isMockMode && (
-                        <span className="flex-shrink-0 text-[9px] font-bold px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-400 uppercase tracking-widest">
-                          Mock
-                        </span>
-                      )}
                     </div>
                     <div className="flex gap-1 justify-end">
                       <button
