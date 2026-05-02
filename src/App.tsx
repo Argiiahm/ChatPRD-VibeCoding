@@ -13,12 +13,14 @@ import {
   Trash2,
   RotateCcw,
   Menu,
-  X
+  X,
+  BookOpen
 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { motion, AnimatePresence } from 'framer-motion';
 import Mermaid from './components/Mermaid';
+import Documentation from './components/Documentation';
 import { GeminiService } from './services/gemini';
 import { getProjects, saveProject, deleteProject, createProject, addRevision, canRevise, type PRDProject } from './services/storage';
 import { clsx, type ClassValue } from 'clsx';
@@ -142,6 +144,7 @@ export default function App() {
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [isMockMode, setIsMockMode] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isDocsOpen, setIsDocsOpen] = useState(false);
 
   // Project & Version state
   const [projects, setProjects] = useState<PRDProject[]>(getProjects());
@@ -202,6 +205,8 @@ export default function App() {
         const reviseFullPrompt = `Original PRD:\n${currentVersion.prd}\n\nRevision request: ${prompt}\n\nIMPORTANT: ONLY revise the PRD text based on the request. Keep the same format. Do NOT generate or include the ## FLOW_DIAGRAM or mermaid code block.`;
         const data = await service.generatePRD(reviseFullPrompt, activeProject.template || undefined);
 
+        if (!data) throw new Error("No data returned from AI service");
+
         // Reuse original mermaid diagram for revisions as requested ("cuma 1 kali")
         const updated = addRevision(activeProject, data.prd, currentVersion.mermaid, prompt);
 
@@ -222,6 +227,7 @@ export default function App() {
     try {
       const service = new GeminiService(apiKey, modelName);
       const data = await service.generatePRD(prompt, activeTemplate || undefined);
+      if (!data) throw new Error("No data returned from AI service");
       const project = createProject(prompt, activeTemplate, data.prd, data.mermaid);
       saveProject(project);
       setActiveProject(project);
@@ -371,6 +377,13 @@ export default function App() {
         {/* Sidebar Footer */}
         <div className="p-3 border-t border-[#3A3834]/50">
           <button
+            onClick={() => setIsDocsOpen(true)}
+            className="w-full flex items-center gap-3 px-3 py-2 rounded-md hover:bg-[#2B2A27] text-[#88857F] hover:text-foreground transition-colors text-left mb-1"
+          >
+            <BookOpen className="w-4 h-4" />
+            <span className="text-[13px] font-medium">Docs</span>
+          </button>
+          <button
             onClick={() => setIsSettingsOpen(true)}
             className="w-full flex items-center gap-3 px-3 py-2 rounded-md hover:bg-[#2B2A27] text-[#88857F] hover:text-foreground transition-colors text-left"
           >
@@ -409,9 +422,15 @@ export default function App() {
                   <Sparkles className="w-6 h-6 text-[#D4A373]" />
                 </div>
                 <h1 className="text-3xl font-semibold  mb-3 text-foreground">What are we building?</h1>
-                <p className="text-[15px] text-[#88857F] leading-relaxed mb-8">
+                <p className="text-[15px] text-[#88857F] leading-relaxed mb-4">
                   Describe your product idea below, and I'll draft a comprehensive PRD with database schemas and a user flow diagram.
                 </p>
+                <button 
+                  onClick={() => setIsDocsOpen(true)}
+                  className="text-[13px] text-[#D4A373] hover:underline mb-8 inline-flex items-center gap-1"
+                >
+                  Learn how it works <BookOpen className="w-3 h-3" />
+                </button>
 
                 {/* Template chips in empty state */}
                 <div className="flex flex-wrap gap-2 justify-center">
@@ -472,7 +491,7 @@ export default function App() {
                   {/* Version Tabs */}
                   {activeProject && activeProject.versions.length > 1 && (
                     <div className="flex gap-1 items-center pb-2 overflow-x-auto no-scrollbar">
-                      {activeProject.versions.map((ver, idx) => (
+                      {activeProject.versions.map((_ver, idx) => (
                         <button
                           key={idx}
                           onClick={() => setActiveVersionIndex(idx)}
@@ -670,6 +689,11 @@ export default function App() {
             </motion.div>
           </motion.div>
         )}
+      </AnimatePresence>
+
+      {/* Documentation Modal */}
+      <AnimatePresence>
+        <Documentation isOpen={isDocsOpen} onClose={() => setIsDocsOpen(false)} />
       </AnimatePresence>
     </div>
   );

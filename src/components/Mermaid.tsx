@@ -34,7 +34,6 @@ function sanitizeChart(raw: string): string {
 
   const lines = chart.split('\n');
   const fixedLines: string[] = [];
-  const nodeMap = new Map<string, string>(); // Map labels to IDs
 
   const getSafeId = (text: string) => {
     return 'node_' + text.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
