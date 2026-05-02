@@ -236,15 +236,7 @@ export default function App() {
       refreshProjects();
     } catch (error: any) {
       const errorMessage = error?.message || 'Please check your API key and connection.';
-      if (errorMessage.includes("503") || errorMessage.includes("high demand") || errorMessage.includes("429") || errorMessage.includes("404")) {
-        setErrorMsg("API model unavailable (503/404). Loading Mock Data for UI preview.");
-        const project = createProject(prompt, activeTemplate, MOCK_RESULT.prd, MOCK_RESULT.mermaid);
-        setActiveProject(project);
-        setActiveVersionIndex(0);
-        setIsMockMode(true);
-      } else {
-        setErrorMsg(`Generation failed: ${errorMessage}`);
-      }
+      setErrorMsg(`Generation failed: ${errorMessage}`);
     } finally {
       setIsLoading(false);
     }
