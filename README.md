@@ -27,7 +27,7 @@ Ikuti langkah-langkah di bawah ini untuk menjalankan project di komputer lokal A
 
 ### 1. Clone Repository
 ```bash
-git clone https://github.com/Argiiahm/ChatPRD-VibeCoding.git
+git clone https://github.com/Argiiahm/ChatPRD.git
 cd ChatPRD-VibeCoding.git
 ```
 
